@@ -91,7 +91,14 @@ jobs:
             exit 1
           fi
 
-          cp "${apks[0]}" dist/
+          version_name="$(sed -nE 's/.*"versionName": "([^"]+)".*/\1/p' app/build/outputs/apk/release/output-metadata.json | head -n1)"
+          if [[ -z "${version_name}" ]]; then
+            echo "Could not determine versionName from output metadata" >&2
+            exit 1
+          fi
+
+          apk_name="turnip-${version_name}.apk"
+          cp "${apks[0]}" "dist/${apk_name}"
           (
             cd dist
             sha256sum -- *.apk > checksums.txt
